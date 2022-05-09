@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '1.8.0.18'
+$Script:Version      = '1.9.0.20'
 <#
 Comments
     Create thumbnails from video store in thumnbs dir.
@@ -19,10 +19,9 @@ if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 	
-$Script:MtuPath =  $configFile.Configuration.MtuExePath 
-$Script:VideoFilesPattern = $configFile.Configuration.VideoFilesPattern
-$Script:ItemSubFolders = $configFile.Configuration.ItemSubFolders
-
+$Script:MtuPath = Get-ConfigValueForFilePath $configFile "Configuration.MtuExePath"
+$Script:VideoFilesPattern = Get-ConfigValue $configFile "Configuration.VideoFilesPattern"
+$Script:ItemSubFolders = Get-ConfigValue $configFile "Configuration.ItemSubFolders"
 
 #########################################################
 #functions
@@ -554,8 +553,8 @@ function Create-FolderImageForChildFolders([string]$FolderPath)
 # SIG # Begin signature block
 # MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUmXTwe1aGYuepnnt2aq1A534P
-# V+WgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUITGaF+s4je9kVym4RlG7E0Rx
+# vnOgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
@@ -571,8 +570,8 @@ function Create-FolderImageForChildFolders([string]$FolderPath)
 # cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
 # CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
 # AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
-# FNBiqiCPpYM4mUrFNCzVeT68YmYPMA0GCSqGSIb3DQEBAQUABIGAIYzNVwbuMGM9
-# Sq7WQCuhB/rMeERPsXwkbZIuN4Mqg4pkEeNV6+FJos0+qNlSV19/L2LkvYg5iYNd
-# NuupwoyedqLp7TXs0hkZOPuLzD2kGo2WgmCK6cthWwBtdHutFqrLcHZFsxS4Joz6
-# d1tBBurfOHccpx7PL9o6S6+RfUDmX98=
+# FLY36tXCryps4Ev4QKGlAN4SOTXgMA0GCSqGSIb3DQEBAQUABIGATVegF40Khs8e
+# fQ/hoRuazj0kGNHTcY99Py/sNqRNRx4Ix+iMcEZrTaI6Rtnr/Lh2DGbQodsxDXVM
+# fGYcTrY4wURt+bbDzahHJfDx5GC1V0nGKAwohs51nQuhXtj+TYQY14Zv9n7V6R0n
+# pDPICyoS9dyD6c3iFOve0wmRhQ8Tc2U=
 # SIG # End signature block

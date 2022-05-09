@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '0.6.0.12'
+$Script:Version      = '0.6.0.17'
 <#
 Comments
 	Script management, for signing and deplyoing to production style enviroment
@@ -16,16 +16,16 @@ Note
 #########################################################
 #Load config from file
 #########################################################
-[xml]$configFile = get-ScriptConfig
+[xml]$Script:configFile = get-ScriptConfig
 if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 	
 #currrent valid cert thumbprint
-$certThumbprint = $configFile.Configuration.CertThumbprint 
+$Script:certThumbprint = Get-ConfigValue $configFile "Configuration.CertThumbprint"
 
 #previous cert thumbprint, usefull when changing certs
-$previousCertThumbprint = $configFile.Configuration.PreviousCertThumbprint 
+$Script:previousCertThumbprint = Get-ConfigValue $configFile "Configuration.PreviousCertThumbprint"
 
 function Sign-Script([string]$ScriptFile)
 {
@@ -48,6 +48,11 @@ function Sign-Script([string]$ScriptFile)
     .Link
         Http://www.ostat.com      
 #>
+    if (!(Test-Path $ScriptFile)) {
+        Write-Error "Source file does not exist $ScriptFile" 
+        return
+    }
+   
     Write-Host "Signing script $($ScriptFile)"
     
     #get version and updated it
@@ -102,13 +107,15 @@ function Deploy-Script([string]$SourceFilePath, [string]$TargetFolderPath)
     .Link
         Http://www.ostat.com
 #>
-    $file = Get-Item $SourceFilePath;
-    
-    if (!(Test-Path $TargetFolderPath)) {
-        Write-Error "target path does not exist $TargetFolderPath" 
+    if (!(Test-Path $SourceFilePath)) {
+        Write-Error "Source file does not exist $SourceFilePath" 
         return
     }
-    
+   
+    CreateDirectoryIfNeeded($TargetFolderPath)
+
+    $file = Get-Item $SourceFilePath;
+  
     $fileSignature = Get-AuthenticodeSignature $file.Fullname
  
     if ($fileSignature.Status -eq "Valid" -and $fileSignature.SignerCertificate.Thumbprint -eq $certThumbprint)
@@ -118,9 +125,10 @@ function Deploy-Script([string]$SourceFilePath, [string]$TargetFolderPath)
         #Compare source and target files, only copied if file changed
         if (!(Test-Path $targetFilePath) -or (Compare-Object ($file) (Get-Item $targetFilePath) -Property Name, Length, LastWriteTime -passThru | Where-Object { $_.SideIndicator -ne '==' }).count -eq 2 )
         {
-   	    	Write-Host "deploying script $($file.Fullname) to $TargetPath"
-            copy -LiteralPath $SourceFilePath -Destination $targetFilePath -Force
+   	    	Write-Host "deploying script $($file.Fullname) to $targetFilePath"
+            copy -LiteralPath $SourceFile -Destination $targetFilePath -Force
         }
+        
     }
 }
 
@@ -133,7 +141,7 @@ function Deploy-Scripts([string]$WorkingFolder, [string]$TargetFolder)
         Deploy-Scripts "C:\bin\powershell"
     .Description
         Script must have a valid cert
-    .Parameter TargetPathFolder
+    .Parameter TargetFolder
         Target profile folder
     .Notes
         NAME: Deploy-Scripts
@@ -143,6 +151,16 @@ function Deploy-Scripts([string]$WorkingFolder, [string]$TargetFolder)
     .Link
         Http://www.ostat.com
 #>
+    if (!(Test-Path $WorkingFolder)) {
+        Write-Error "Working folder does not exist $WorkingFolder" 
+        return
+    }
+
+    if (!(Test-Path $TargetFolder)) {
+        Write-Error "target path does not exist $TargetFolder" 
+        return
+    }
+
     Get-ChildItem -LiteralPath $WorkingFolder -Filter "*.ps1" -Recurse | foreach-object {
  
         $fileSignature = Get-AuthenticodeSignature $_.Fullname
@@ -178,6 +196,17 @@ function SignandDeploy-Scripts([string]$WorkingFolder, [string]$TargetFolder)
     Http://www.ostat.com
 #> 
     Write-Host "Signing and deploying powershell scripts. Only files already signed with the current cert (and edited) will be signed`nWorking folder $workingProfile" -background "black" -ForegroundColor "yellow"
+
+    if (!(Test-Path $WorkingFolder)) {
+        Write-Error "Working folder does not exist $WorkingFolder" 
+        return
+    }
+
+    if (!(Test-Path $TargetFolder)) {
+        Write-Error "target path does not exist $TargetFolder" 
+        return
+    }
+
     Write-Host "$($MyInvocation.MyCommand.Name) v$Version at: $(get-date)"
 	
     #Back up working folder
@@ -185,29 +214,59 @@ function SignandDeploy-Scripts([string]$WorkingFolder, [string]$TargetFolder)
     Backup-Folder  $WorkingFolder
     Write-Host ""
     Get-ChildItem -LiteralPath $WorkingFolder -Filter "*.ps1" -Recurse | foreach-object {
-        
-        $fileSignature = Get-AuthenticodeSignature $_.Fullname
+    	$sourceFile = $_.Fullname
+        $fileSignature = Get-AuthenticodeSignature $sourceFile
         if ($fileSignature.SignerCertificate.Thumbprint -eq $previousCertThumbprint)
         {
             #update code signed to new signing certificate
-            $fileSignature = Sign-Script $_.Fullname
+            $fileSignature = Sign-Script $sourceFile
         }       
            
         if ($fileSignature.Status -eq "HashMismatch" -and $fileSignature.SignerCertificate.Thumbprint -eq $certThumbprint)
         {
             #update version number
-            $fileSignature = Sign-Script $_.Fullname
+            $fileSignature = Sign-Script $sourceFile
         } 
            
         if ($fileSignature.Status -eq "Valid" -and $fileSignature.SignerCertificate.Thumbprint -eq $certThumbprint)
         {
             #Copy all files over
-			$targetFolderPath = $_.Parent.Fullname.replace($WorkingFolder, $TargetFolder)
-            Deploy-Script $_.FullName $targetFolderPath
+			$targetFolderPath = $_.Directory.Fullname.replace($WorkingFolder, $TargetFolder)
+			
+            Deploy-Script $sourceFile $targetFolderPath
         }
         else
         {
-            Write-Verbose "File not valid for deploying $($_.Fullname)"
+            Write-Verbose "File not valid for deploying $sourceFile"
         }
     }
 }
+
+#SignandDeploy-UbikScriptProfiles  
+#Sync-UbikScriptProfiles "C:\bin\powershell"
+
+# SIG # Begin signature block
+# MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUK1Lwxzx+Bq/IOQ2PIKGDtMRC
+# SKOgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
+# Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
+# U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
+# 7CY2tvUzT/zybRnFTBYcfD6G0jqAxTDVF8IBLudQ8JT050N9k/t5J+LIPWB42yr9
+# kEWjW+14Kf71FKHXkGOMo97h+daSMuMQmkhLDsf89Oo6rSJiTL4vBMCn4aRfPK6Z
+# SLmipNqx2GXdSENRHBwNL/xDUl2bR70CAwEAAaN2MHQwEwYDVR0lBAwwCgYIKwYB
+# BQUHAwMwXQYDVR0BBFYwVIAQhO+BACS94IWK23FVrvD18aEuMCwxKjAoBgNVBAMT
+# IVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdIIQv2FEF1g6paRFCcYM
+# 8UlkRTAJBgUrDgMCHQUAA4GBAJTyBSZO/nFGEge79osRWILjKxXA3zyT5ooxlO0G
+# 5e/a47iWaDdffcotXLUU0XyF765LmO4FKnmdkLRX5YX/rqdyuxK3CLgT1rDzyq9D
+# uO2FvBPUCFzSX4mbVcc6yfdC/S5eZ8NaOHb4mixtzGFLWPxMcpao5augzbPqHKEE
+# NhViMYIBYDCCAVwCAQEwQDAsMSowKAYDVQQDEyFQb3dlclNoZWxsIExvY2FsIENl
+# cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
+# CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
+# AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
+# FEFmHnTMf1RAxL8spF1/xHNulkA4MA0GCSqGSIb3DQEBAQUABIGAMBZlQuc356mv
+# dlRUPfXoX7xE1mOMb3B8OOAQGakldOnj9IdezwT0aXZM7WoRRuAzRRkGbJn0FpOB
+# i+Epc0Gb/ZO+txrziHFWzLGaLLIgTJYsAn194EoU21V2kKP5BgrbaPBjgPCJTDBy
+# JJxJoPzr9qfs4Tm4xPw77/6fmkHyDYY=
+# SIG # End signature block

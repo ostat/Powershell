@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '0.3.0.6'
+$Script:Version      = '0.3.0.7'
 <#
 Comments
     moves child files into a folder of the same name excluding the extension.
@@ -10,12 +10,12 @@ Comments
 #########################################################
 #Load config from file
 #########################################################
-[xml]$configFile = get-ScriptConfig
+[xml]$Script:configFile = get-ScriptConfig
 if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 	
-$Script:ExclusionPattern =  $configFile.Configuration.ExclusionPattern 
+$Script:ExclusionPattern = Get-ConfigValue $configFile "Configuration.ExclusionPattern"
 
 function Promote-Files([string]$FolderPath) 
 {
@@ -172,8 +172,8 @@ function Promote-File([string]$Path) {
 # SIG # Begin signature block
 # MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUFvBEFX6pZ2ebuGiUtsNOPxRF
-# rFygggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUFZvgHSFPoWgzpgaT/JYVi6Ws
+# 3ymgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
@@ -189,8 +189,8 @@ function Promote-File([string]$Path) {
 # cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
 # CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
 # AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
-# FHUQVejrWAd9rVlzKcmjDVI4PJ1GMA0GCSqGSIb3DQEBAQUABIGAEPNjX/GERoMA
-# Nzy0zYDskfqL6HFSWnC/KqG0LgMfWICY+FPk1Hibr1chIhPhI2+lslCNiLkmOULh
-# WJ2aEdVhVH3N4lX/czpTW/b8IIrj7IiKENsuC2Zk3U4vawPi/UxXiiFqujn1zBMY
-# WE2hme0Xt93R5e1fNDkdh2hM++I8v5Y=
+# FNAGnTNYRt2UTT8NQAZmzxH2uFZfMA0GCSqGSIb3DQEBAQUABIGAR86M94zcZmIa
+# qu0SGdpBX0x+hOSNQuxAaswen3QvSWe4f4PZ6j2wyOhNWbm4VLUr9ObH7ZxWEaG7
+# t+ugTJxUG9uAIYGBCtZkFIPZlcQidjPVHpCXt4TxKfiINc72Xjb4MRJ+UzlIBmRv
+# OsneC5TqwC7jg0n1pimZaHOGwENi8Cs=
 # SIG # End signature block

@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '0.2.0.5'
+$Script:Version      = '0.2.0.6'
 <#
 Comments
     Download Audio stream to local drive
@@ -12,13 +12,13 @@ Comments
 #########################################################
 #Load config from file
 #########################################################
-[xml]$configFile = get-ScriptConfig
+[xml]$Script:configFile = get-ScriptConfig
 if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 
 #Local path to mplayer.exe
-[string]$Script:MplayerPath = $configFile.Configuration.MplayerPath
+[string]$Script:MplayerPath = Get-ConfigValue $configFile "Configuration.MplayerPath"
 
 function Get-Web($url, 
     [switch]$self,
@@ -125,8 +125,8 @@ function Save-Stream([string]$asxUrl,
 # SIG # Begin signature block
 # MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUUm4tkxbuieGLzFtx4g5WxZjr
-# ObCgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUO+glXTWz2vSl14rt9PXNoAwO
+# D7GgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
@@ -142,8 +142,8 @@ function Save-Stream([string]$asxUrl,
 # cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
 # CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
 # AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
-# FHelpay2JsYRSj/Eloc2T7hn1FaCMA0GCSqGSIb3DQEBAQUABIGAV+imfvcufHqj
-# egvUQNE9ANUU9uEnYW3qMOwBm5dKPhC+/RuSFW9EIMfFH95OKx3boMs0xAjkqJkh
-# t90Bn0gmPQyn2mcyYg+WhdodQh/P/4K+7B+FicnTVs9dk7xrHUXCOPZHCkmviWgP
-# ZovRGoH5HDibn7JiwLpNY2330Vcsy5g=
+# FAyE4gIuyZylNDMZo/rOLNlXzMmFMA0GCSqGSIb3DQEBAQUABIGAGJ6xzKIZnhb9
+# FCVGccJK/vTfuQlA/9J+bCq6JdF8gdRd2CeuRLAAKsrB97s4AuhvSJ8z3hVq31qn
+# /iK1XzxH8grVjYw5Cw/pjRqZCO5CsNIwEIoAJaSR/DYPXeSfuSl4oPykSp2cGEp1
+# V/QC5a0krr4FXgr5XTzqSHOzMYWBMfY=
 # SIG # End signature block

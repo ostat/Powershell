@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '0.1.0.6'
+$Script:Version      = '0.1.0.7'
 <#
 Comments
     Enables easier comunication with utorrent via the webapi
@@ -14,15 +14,15 @@ Change History
 #########################################################
 #Load config from file
 #########################################################
-[xml]$configFile = get-ScriptConfig
+[xml]$Script:configFile = get-ScriptConfig
 if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 
-[String]$Script:Server = $configFile.Configuration.Server 
-[String]$Script:Port = $configFile.Configuration.Port
-[String]$Script:User = $configFile.Configuration.User 
-[String]$Script:Pass = $configFile.Configuration.Pass
+[string]$Script:Server = Get-ConfigValue $configFile "Configuration.server"
+[string]$Script:Port = Get-ConfigValue $configFile "Configuration.port"
+[string]$Script:User = Get-ConfigValue $configFile "Configuration.user"
+[string]$Script:Pass = Get-ConfigValue $configFile "Configuration.pass"
 
 [String]$Script:UtorrentUrl = "http://$server`:$port/gui/"
 [String]$Script:token = ""
@@ -131,8 +131,8 @@ function Utorrent-ParseSettings([string]$json)
 # SIG # Begin signature block
 # MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUjeK683iLD5+FqUfT1gVKMeml
-# h6ygggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUDiMMDClbyID8IQ0QY1fDgoU7
+# 5fGgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
@@ -148,8 +148,8 @@ function Utorrent-ParseSettings([string]$json)
 # cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
 # CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
 # AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
-# FPBUs+KxAKqch0Jk4Ta1KCIgtzSrMA0GCSqGSIb3DQEBAQUABIGAof06E291QeaM
-# durfsBM9Mqiwk007ca+uPKiRRUVdO/kWW6vlOkyuiwzI5bftJGnTWZnufSI4XEd+
-# mkSW3jJtGP66l8HiAFYcNMYwLg7qDKi1NcSPUE0WeJUyfqhs486f/Vn/kK6DH+fH
-# pF3sIn6blicY7daV7u7iDFYkzrzx1QA=
+# FJnWzPOAqwc6GpGswrTUgYUHnoEBMA0GCSqGSIb3DQEBAQUABIGAQBzD2ESEAlVG
+# 1cQoRD2FyRpmVYzQgddC7VSsxggtWlE0PJ2LC3bg1nJEbWE+ey0B12tHLBuYGvfX
+# GRjaZMfL/Xw2whJuSaHmgmaN0TvbgEBI0m0DZR57w/RiZv86t6ogVweJYBENA4YQ
+# w+8uoIh+BYEgfOeQM1fPRPvWAKngkkw=
 # SIG # End signature block

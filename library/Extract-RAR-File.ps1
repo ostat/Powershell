@@ -1,7 +1,7 @@
 #*******************************************************************
 # Global Variables
 #*******************************************************************
-$Script:Version      = '0.3.1.7'
+$Script:Version      = '1.0.1.9'
 <#
 Comments
     unrars a rar file or set of rar files, then if "all ok" removes the rar files
@@ -11,14 +11,14 @@ Comments
 #########################################################
 #Load config from file
 #########################################################
-[xml]$configFile = get-ScriptConfig
+[xml]$Script:configFile = get-ScriptConfig
 if ($configFile -eq $null) {
   	Write-Error "Failed to load config`nExiting"
 	Exit}
 
 #path to unrar.exe I.E. c:\bin\unrar\unrar.exe
-$Script:unrarName =  $configFile.Configuration.UnRarExePath 
-	
+$Script:unrarName = Get-ConfigValueForFilePath $configFile "Configuration.UnRarExePath"
+
 function Extract-RAR-File([string]$FilePath, [bool]$RemoveSuccessfull = $false) 
 {
 <#
@@ -47,13 +47,13 @@ function Extract-RAR-File([string]$FilePath, [bool]$RemoveSuccessfull = $false)
     Write-verbose ("$($MyInvocation.MyCommand.Name) v$Version : [FilePath $FilePath, RemoveSuccessfull $RemoveSuccessfull]")
     
     # Verify we can access UNRAR.EXE .
-	if ([string]::IsNullOrEmpty($unrarName) -or (Test-Path -LiteralPath $unrarName) -ne $true)
+	if ([string]::IsNullOrEmpty($Script:unrarName) -or (Test-Path -LiteralPath $Script:unrarName) -ne $true)
 	{
-	    Write-Error "Unrar.exe path does not exist '$unrarPath'."
+	    Write-Error "Unrar.exe path does not exist '$($Script:unrarName)'."
         return
     }
 	
-    [string]$unrarPath = $(Get-Command $unrarName).Definition
+    [string]$unrarPath = $(Get-Command $Script:unrarName).Definition
     if ( $unrarPath.Length -eq 0 )
     {
         Write-Error "Unable to access unrar.exe at location '$unrarPath'."
@@ -128,8 +128,8 @@ function Extract-RAR-File([string]$FilePath, [bool]$RemoveSuccessfull = $false)
 # SIG # Begin signature block
 # MIIEMwYJKoZIhvcNAQcCoIIEJDCCBCACAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUsIHdHpCcV4CIDeo+z6BJ3Mlb
-# GyqgggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQURqMN7a3ViGczuR8ujy4hf66U
+# Jx6gggI9MIICOTCCAaagAwIBAgIQvBf8+FZ1TpZGQZ4AtBXcMTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xMjEwMTEwOTIxNDlaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAtgqmw2j4wUCE
@@ -145,8 +145,8 @@ function Extract-RAR-File([string]$FilePath, [bool]$RemoveSuccessfull = $false)
 # cnRpZmljYXRlIFJvb3QCELwX/PhWdU6WRkGeALQV3DEwCQYFKw4DAhoFAKB4MBgG
 # CisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcC
 # AQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYE
-# FGklUNYzCo5EKLqrvZXPTGcRUW7vMA0GCSqGSIb3DQEBAQUABIGAkk2sIfByprwt
-# GFCmV8Cpys6UMpzQZ3vcaZ3wyt5OZiqNUueR3M7FgasS12nRtuW/K9qL2Q3at1U/
-# kAtmGBLHdmx8bcJim+XUZCIIkerWZSSQ9pyI3yqj274WeMMJPPrcJdU/86ZH6IX2
-# cCKg2558xLVfD4DyT7uDHyeI7R5PkeA=
+# FPNLJqFSPRp86unrtX7x4/72z+LSMA0GCSqGSIb3DQEBAQUABIGAjGIQY+YciOzz
+# NvnHlPGb2t0AfCfivGynBgipxiA9eFcpjixKSCAhz5apTiaZC/nIu9sU5azt12pg
+# 6C6FDAK0Z0gXsK3/eNfU5Woq29FnzRIkFWtd177IO+jyI7YootsBeRUh50YfpnM3
+# /W/0KUup6aplcniXkpdQlfqKeTwO4So=
 # SIG # End signature block
